@@ -1,0 +1,63 @@
+name: Upstream HakiOS XNU source audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/upstream-xnu-audit.yml"
+      - "docs/**"
+      - "sources/**"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upstream-xnu-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  upstream-audit:
+    name: Pinned HakiOS XNU source checks
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    env:
+      UPSTREAM_REPO: https://github.com/oosexgang/hakios-xnu-kernel.git
+      UPSTREAM_COMMIT: 87bf4851bcc9cbb24fd79997820aa3661abe4ea5
+    steps:
+      - name: Install audit dependencies
+        run: sudo apt-get update && sudo apt-get install -y git make python3
+
+      - name: Checkout exact upstream HakiOS revision
+        run: |
+          git init upstream
+          git -C upstream remote add origin "$UPSTREAM_REPO"
+          git -C upstream fetch --depth=1 origin "$UPSTREAM_COMMIT"
+          git -C upstream checkout --detach FETCH_HEAD
+          test "$(git -C upstream rev-parse HEAD)" = "$UPSTREAM_COMMIT"
+          printf 'Upstream HakiOS commit: %s\n' "$(git -C upstream rev-parse HEAD)" | tee upstream-revision.txt
+
+      - name: Check upstream configuration and driver metadata
+        working-directory: upstream
+        run: |
+          make help
+          python3 tools/hakios-config-test.py
+          python3 tools/drivers-check.py
+          python3 tools/boot-args-test.py
+          python3 tools/provenance-check.py
+
+      - name: Verify XNU patch applies to its pinned Apple source release
+        working-directory: upstream
+        run: |
+          git clone -q --depth 1 --branch xnu-8796.121.2 https://github.com/apple-oss-distributions/xnu.git "$RUNNER_TEMP/xnu"
+          git -C "$RUNNER_TEMP/xnu" apply --check "$GITHUB_WORKSPACE/upstream/xnu/hakios.patch"
+
+      - name: Upload audit record
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstream-hakios-source-audit
+          path: upstream-revision.txt
+          if-no-files-found: error
+          retention-days: 14
