@@ -1,33 +1,45 @@
 # Compile status — SM-G975F / beyond2lte
 
+## Purpose
+
+This is a separate Linux hardware-source experiment. It is not the actual iOS/XNU port and a successful build does not mean HakiOS can boot.
+
 ## Current compile target
 
-- Repository: https://github.com/LineageOS/android_kernel_samsung_exynos9820
-- Branch audited: `lineage-23.2`
-- Pinned source commit: `a412cfaf86b980ce35cae96a35f678c8ea551575`
-- Device defconfig: `exynos9820-beyond2lte_defconfig`
-- Device-tree reference: `exynos9820-beyond2lte_eur_open_23.dts`
+- Repository: https://github.com/ExtremeXT/android_kernel_samsung_exynos9820
+- Pinned source commit: `2f7b0aa3e501fabeaea679e3d1bde49a1e13be46`
+- Device defconfig: `extreme_beyond2lte_defconfig`
+- Compiler: repository submodule `toolchain/clang-r416183b`
+- Additional required submodule: `KernelSU` (the kernel tree's `drivers/kernelsu` symlink points into it)
 - Host runner: GitHub Actions Ubuntu 22.04
 - Build type: compile-only; `Image` and DTBs, if produced
 
-The source is a Linux 4.14 Android/vendor kernel. This is a reproducible hardware-kernel research baseline, not Apple's XNU, not an iOS kernel, and not a bootable HackiOS image.
+## First CI result
 
-## Automation
+Run 4 failed during Kconfig setup, before compilation. The exact error was:
 
-`.github/workflows/kernel-compile.yml` checks out the pinned source revision, configures the G975F-specific defconfig, and attempts to compile the kernel image and device trees. A successful run uploads a short-lived artifact containing the build outputs, config, source/compiler record, and image hash.
+`drivers/Kconfig:243: can't open file "drivers/kernelsu/Kconfig"`
 
-The workflow intentionally does not create a flashable ZIP, alter boot images, or write anything to a phone.
+The workflow had initialized the Clang toolchain submodule but omitted the KernelSU submodule. This was a CI checkout defect, not a compiler error and not evidence that the kernel itself cannot compile.
+
+## Fix applied
+
+Commit `8bb4564ac13ef69f41e011c51a506db0702ed9fe` changes the checkout step to initialize all pinned submodules recursively and explicitly checks that `drivers/kernelsu/Kconfig` resolves. The follow-up workflow run is tracked on the repository Actions page; the compile is not marked successful until the run finishes and produces outputs.
+
+## Automation and outputs
+
+`.github/workflows/kernel-compile.yml` verifies the source SHA, configures the device defconfig, and attempts to compile `Image` and DTBs. On success it uploads the build record, kernel config, image, DTBs and checksum as a short-lived artifact.
+
+The workflow does not create a flashable package, alter a boot image, or write anything to a phone.
 
 ## Status
 
-- [x] Select and pin a G975F-specific compile-test source revision.
+- [x] Pin a G975F-specific Linux kernel source revision.
 - [x] Add a CI compile-only workflow.
-- [ ] Complete the first CI compile successfully.
+- [x] Diagnose and fix the missing KernelSU submodule checkout.
+- [ ] Complete a CI compile successfully.
 - [ ] Review compiler warnings and resulting DTB coverage.
-- [ ] Compare Linux driver/interface coverage with the separate XNU feasibility analysis.
 
-A CI failure is useful diagnostic evidence, not proof that the source is unusable. Fixes should be isolated and recorded; do not silently change the pinned source revision.
+## Device integrity
 
-## Device safety
-
-Do not flash the compile artifact. It has not been validated against the device's boot chain, firmware, partition layout, or recovery procedure. Keep all device-side experiments separate from this compile-only stage.
+Do not flash this compile artifact. It has not been validated against the device's boot chain, firmware, partition layout, or recovery procedure. Keep device-side work separate from this compile-only stage.
