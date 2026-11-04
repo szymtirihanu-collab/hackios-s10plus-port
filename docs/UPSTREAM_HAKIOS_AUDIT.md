@@ -6,7 +6,7 @@ Audit date: 2026-11-04
 
 The target is Apple's real Darwin/iOS environment, including the real SpringBoard process and system frameworks. A launcher, Android skin, Linux desktop, or visual mock-up does not satisfy the goal.
 
-The upstream project inspected is https://github.com/oosexgang/hakios-xnu-kernel. Its README identifies the project as a port of Apple's open-source Darwin XNU kernel (xnu-8796.121.2) to Android hardware, with its own loader, drivers, configuration and userland. It keeps Apple's iOS userspace and device firmware out of the repository; the user supplies legally obtained source-device material.
+The upstream project inspected is https://github.com/oosexgang/hakios-xnu-kernel, pinned for this audit at commit `87bf4851bcc9cbb24fd79997820aa3661abe4ea5` (4 November 2026). It identifies itself as a port of Apple's open-source Darwin XNU kernel (xnu-8796.121.2) to Android hardware, with its own loader, drivers, configuration and userland. It keeps Apple's iOS userspace and device firmware out of the repository; the user supplies legally obtained source-device material.
 
 ## What the upstream project actually provides
 
@@ -14,6 +14,8 @@ The upstream project inspected is https://github.com/oosexgang/hakios-xnu-kernel
 - A separate UEFI project and per-device repositories.
 - A documented porting flow that starts from a device tree, creates a device profile, boots with minimal drivers, then brings up device drivers incrementally.
 - A working reference target based on the Qualcomm SC7280 family (POCO X5 Pro / redwood).
+- A separate QEMU target. Its Apple-free `make qemu-open` path is a generic-kernel validation route, not proof of a phone port.
+- The upstream device-status page lists only QEMU virt and the Qualcomm POCO X5 Pro; Exynos 9820 is not currently a supported device.
 
 The upstream docs/porting/index.md currently describes its starting hardware requirement as an ARM64 Qualcomm SoC with an unlocked bootloader and a UEFI port. Its example driver sequence includes Adreno GPU support and Qualcomm-oriented subsystems.
 
@@ -32,10 +34,10 @@ ARM64 compatibility alone does not make the platforms interchangeable.
 
 ## Immediate engineering direction
 
-1. Keep the existing LineageOS Linux kernel compile workflow labelled Linux compile-only. It is not an iOS kernel build and must not be used as evidence that XNU boots.
-2. Treat upstream HakiOS as the architectural reference for the actual iOS track.
-3. Audit the upstream build system, device manifest, SoC abstraction, loader interfaces and driver boundaries before creating an Exynos profile.
-4. Build a source-backed Exynos gap matrix: boot/UEFI, CPU and interrupt handling, timer, memory, storage, framebuffer/display, touch/input, USB, GPU and required early userspace services.
+1. Keep the ExtremeXT Linux kernel compile workflow labelled Linux compile-only. It is not an iOS kernel build and must not be used as evidence that XNU boots.
+2. Keep the upstream HakiOS commit pinned and run its configuration, driver-metadata and XNU-patch checks in CI.
+3. Build a source-backed Exynos gap matrix: boot/UEFI, CPU and interrupt handling, timer, memory, storage, framebuffer/display, touch/input, USB, GPU and required early userspace services.
+4. Create an Exynos SoC layer and `beyond2lte` device profile only after each hardware value is backed by the correct device-tree or vendor-source evidence.
 5. Only claim a milestone after a reproducible test demonstrates that exact component on the target or in an appropriately scoped emulator.
 
 ## One-month planning boundary
