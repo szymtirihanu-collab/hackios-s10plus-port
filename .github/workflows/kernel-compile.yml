@@ -1,0 +1,90 @@
+name: HackiOS kernel compile test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/kernel-compile.yml"
+      - "docs/**"
+      - "sources/**"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hackios-kernel-compile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  beyond2lte-compile:
+    name: Exynos 9820 / SM-G975F compile-only
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    env:
+      ARCH: arm64
+      LLVM: "1"
+      KERNEL_REPO: https://github.com/LineageOS/android_kernel_samsung_exynos9820.git
+      KERNEL_COMMIT: a412cfaf86b980ce35cae96a35f678c8ea551575
+      DEFCONFIG: exynos9820-beyond2lte_defconfig
+    steps:
+      - name: Install host build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc bison build-essential cpio flex gcc-aarch64-linux-gnu             git libelf-dev libssl-dev lld llvm clang python3 rsync
+
+      - name: Checkout pinned Exynos 9820 kernel source
+        run: |
+          git init kernel
+          git -C kernel remote add origin "$KERNEL_REPO"
+          git -C kernel fetch --depth=1 origin "$KERNEL_COMMIT"
+          git -C kernel checkout --detach FETCH_HEAD
+          test "$(git -C kernel rev-parse HEAD)" = "$KERNEL_COMMIT"
+
+      - name: Record build inputs
+        run: |
+          mkdir -p build-record
+          {
+            echo "Target: Samsung Galaxy S10+ SM-G975F (beyond2lte)"
+            echo "SoC: Exynos 9820"
+            echo "Architecture: arm64"
+            echo "Kernel repository: $KERNEL_REPO"
+            echo "Kernel commit: $KERNEL_COMMIT"
+            echo "Defconfig: $DEFCONFIG"
+            echo "Compiler:"
+            clang --version
+            echo "Host:"
+            uname -a
+          } | tee build-record/BUILD-INFO.txt
+
+      - name: Configure device-specific kernel
+        working-directory: kernel
+        run: |
+          make O="$GITHUB_WORKSPACE/out" ARCH="$ARCH" LLVM="$LLVM" "$DEFCONFIG"
+          cp "$GITHUB_WORKSPACE/out/.config" "$GITHUB_WORKSPACE/build-record/kernel.config"
+
+      - name: Compile kernel image and device trees
+        working-directory: kernel
+        run: |
+          make O="$GITHUB_WORKSPACE/out" ARCH="$ARCH" LLVM="$LLVM" -j2 Image dtbs
+
+      - name: Collect compile-only outputs
+        if: success()
+        run: |
+          mkdir -p artifacts
+          test -s out/arch/arm64/boot/Image
+          cp out/arch/arm64/boot/Image artifacts/Image
+          find out/arch/arm64/boot/dts -type f -name '*.dtb' -exec cp --parents {} artifacts/ \;
+          cp build-record/BUILD-INFO.txt build-record/kernel.config artifacts/
+          sha256sum artifacts/Image > artifacts/SHA256SUMS
+
+      - name: Upload compile-only artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beyond2lte-kernel-compile-only
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 7
