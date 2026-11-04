@@ -6,12 +6,14 @@ Target device: **Samsung Galaxy S10+ SM-G975F (beyond2lte), Exynos 9820, ARM64**
 
 ## Project direction
 
-HackiOS investigates whether selected operating-system concepts and compatible components can be recreated for the S10+. It has two separate engineering tracks:
+The intended end goal is Apple's actual Darwin/iOS environment on the S10+, including the real SpringBoard and its required system services—not an Android launcher, visual imitation, or Linux-based substitute.
 
-1. **Apple iOS compatibility research** — study the architectural, kernel, driver, firmware, boot-chain, and userspace requirements of Apple's actual operating system.
-2. **S10+ custom-kernel research** — audit and compile device-specific ARM64 kernel sources for the Exynos 9820 as a hardware bring-up foundation.
+The project has two distinct engineering tracks:
 
-A custom Samsung/Linux kernel is not an iOS kernel. Apple's XNU kernel and platform stack are not made compatible with Exynos merely by compiling a new kernel. Any native Linux kernel work is a distinct platform track and must be labelled accurately.
+1. **XNU / iOS compatibility research** — investigate the upstream HakiOS XNU port, its loader, device profiles, drivers and iOS userspace requirements, then determine what must be implemented for Exynos 9820.
+2. **S10+ Linux kernel compile research** — maintain a reproducible Linux kernel build only as a separate source/hardware reference. It is not an iOS kernel and is not a substitute for XNU.
+
+A successful Linux kernel compile does not advance the project to a bootable iOS image. See [the upstream HakiOS audit](docs/UPSTREAM_HAKIOS_AUDIT.md) for the current Exynos 9820 gap analysis.
 
 ## Current target and scope
 
@@ -19,28 +21,32 @@ A custom Samsung/Linux kernel is not an iOS kernel. Apple's XNU kernel and platf
 - Codename: **beyond2lte**
 - SoC: **Exynos 9820**
 - Architecture: **ARM64 / AArch64**
-- Kernel baseline under investigation: Samsung Exynos 9820 vendor kernel, with current community-maintained source branches audited separately.
+- Actual iOS track: upstream HakiOS XNU architecture, with a new Exynos device/SoC port required.
+- Separate Linux baseline: Samsung Exynos 9820 vendor kernel, for compile and hardware-source research only.
 - This project does **not** inherit requirements from the separate Android 16 port project.
 
 ## Milestones
 
-- [x] Establish target device and scope.
-- [x] Record iOS/kernel feasibility constraints.
-- [x] Identify public Exynos 9820 kernel-source candidates.
-- [ ] Verify the phone's exact firmware and bootloader state.
-- [ ] Select and pin a source tree/commit for compile-only testing.
-- [ ] Reproduce a clean kernel build on openSUSE.
-- [ ] Compare the compiled kernel's interfaces and hardware support with the iOS/XNU requirements map.
-- [ ] Define a realistic, independently bootable HackiOS research environment, if feasible.
-- [ ] Only after source, image format, and recovery requirements are verified, plan device-side testing.
+- [x] Establish target device and actual-iOS goal.
+- [x] Identify and inspect the upstream HakiOS XNU project.
+- [x] Document the initial Exynos 9820 versus Qualcomm reference-platform gaps.
+- [x] Identify public Exynos 9820 Linux kernel-source candidates for separate hardware research.
+- [ ] Audit upstream HakiOS build, device manifest, loader and SoC interfaces in detail.
+- [ ] Establish whether a viable Exynos-specific UEFI/boot path can be built and tested.
+- [ ] Define an Exynos XNU device profile and identify the minimum required drivers.
+- [ ] Demonstrate XNU early boot on the target platform.
+- [ ] Bring up display and touch, then required iOS userspace services and actual SpringBoard.
+
+A one-month effort is a time-box for research and bring-up, not a promise that SpringBoard will be working by the deadline.
 
 ## Repository map
 
+- `docs/UPSTREAM_HAKIOS_AUDIT.md` — upstream project inspection and Exynos gap analysis.
 - `docs/FEASIBILITY.md` — overall iOS-on-Exynos feasibility.
 - `docs/XNU_PORT_GAP.md` — platform components a kernel alone cannot provide.
 - `docs/BOOT_CHAIN.md` — Samsung boot-chain research checklist.
-- `docs/KERNEL_PLAN.md` — kernel development process.
-- `docs/KERNEL_SOURCE_AUDIT.md` — known public source candidates and limitations.
+- `docs/KERNEL_PLAN.md` — Linux kernel research process.
+- `docs/KERNEL_SOURCE_AUDIT.md` — known public Exynos source candidates and limitations.
 - `docs/DEVICE_NOTES.md` — target-specific facts to verify.
 - `docs/DEVICE_TREE_AUDIT.md` — inspected S10+ device-tree evidence.
 - `sources/README.md` — source selection policy.
