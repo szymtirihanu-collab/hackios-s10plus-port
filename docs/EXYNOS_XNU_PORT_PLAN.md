@@ -2,13 +2,13 @@
 
 Audit date: 2026-11-04
 Target: Samsung Galaxy S10+ SM-G975F (`beyond2lte`, Exynos 9820)
-Upstream reference: https://github.com/oosexgang/hakios-xnu-kernel
+General upstream reference: https://github.com/oosexgang/hakios-xnu-kernel\nExact-device read-only reference: https://github.com/orhunnx/beyond2lte-ios (audited at `9c6bae4dab4345ff537b1fc2c9de90ae01362c4b`; no license found, so its code is not copied)
 
 ## Goal
 
 Run the upstream HakiOS Darwin/XNU environment on the Exynos 9820 and, eventually, run the real Darwin 16.5 iOS userspace including SpringBoard. A visual imitation or Android launcher is not a milestone.
 
-The upstream project currently documents Qualcomm ARM64 as its phone-port starting point. Its demonstrated device is the POCO X5 Pro 5G (`redwood`, SC7280/SM7325). The S10+ is a different SoC family and requires a new platform port, not a copied redwood profile.
+The general HakiOS upstream currently documents Qualcomm ARM64 as its phone-port starting point. Its demonstrated device is the POCO X5 Pro 5G (`redwood`, SC7280/SM7325). A separate public repository, `orhunnx/beyond2lte-ios`, already documents an experimental XNU port on this exact S10+ model and reports that SpringBoard has appeared. Its latest recorded checkpoint still has incomplete rendering and a SpringBoard assertion, its runtime claims are maintainer-reported rather than independently reproduced here, and no repository license was found. It is a read-only research reference only; no code is copied.
 
 ## Architecture that must be brought up
 
@@ -47,6 +47,7 @@ No driver should be marked `works` based only on compiling. It needs a reproduci
 ### Gate A — reproducible upstream baseline
 
 - Pin an exact upstream HakiOS commit.
+- Compare its generic loader/XNU architecture with the exact-device reference's published boot contract and board notes.
 - Reproduce upstream static checks and the Apple-free QEMU build on CI or a Linux host.
 - Keep all upstream files under their original licenses; do not copy Apple firmware or proprietary iOS system images into this repository.
 - Record the exact toolchain, build command, output hashes and test result.
@@ -60,7 +61,7 @@ Acceptance: upstream generic XNU/QEMU baseline builds and runs; this is not an E
 - Create a new `exynos9820` SoC layer and `beyond2lte` device profile; do not reuse Qualcomm SC7280 data or Adreno driver code.
 - Keep all phone-specific drivers disabled until their addresses, interrupts, clocks, rails and firmware dependencies are verified.
 
-Acceptance: configuration and device-profile checks pass with a documented source for each hardware value.
+Acceptance: configuration and device-profile checks pass with a documented source for each hardware value. The exact-device reference may inform the gap analysis, but its unlicensed code is not reused.
 
 ### Gate C — early XNU boot
 
