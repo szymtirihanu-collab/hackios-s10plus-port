@@ -24,24 +24,26 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     env:
-      ARCH: arm64
-      LLVM: "1"
-      KERNEL_REPO: https://github.com/LineageOS/android_kernel_samsung_exynos9820.git
-      KERNEL_COMMIT: a412cfaf86b980ce35cae96a35f678c8ea551575
-      DEFCONFIG: exynos9820-beyond2lte_defconfig
+      KERNEL_REPO: https://github.com/ExtremeXT/android_kernel_samsung_exynos9820.git
+      KERNEL_COMMIT: 2f7b0aa3e501fabeaea679e3d1bde49a1e13be46
+      DEFCONFIG: extreme_beyond2lte_defconfig
     steps:
       - name: Install host build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y bc bison build-essential cpio flex gcc-aarch64-linux-gnu             git libelf-dev libssl-dev lld llvm clang python3 rsync
+          sudo apt-get install -y bc bison build-essential cpio flex git libelf-dev libssl-dev make python3 rsync zip
 
-      - name: Checkout pinned Exynos 9820 kernel source
+      - name: Checkout pinned S10+ kernel and compiler
         run: |
           git init kernel
           git -C kernel remote add origin "$KERNEL_REPO"
           git -C kernel fetch --depth=1 origin "$KERNEL_COMMIT"
           git -C kernel checkout --detach FETCH_HEAD
           test "$(git -C kernel rev-parse HEAD)" = "$KERNEL_COMMIT"
+          git -C kernel submodule sync --recursive
+          git -C kernel submodule update --init --depth 1 toolchain/clang-r416183b
+          test -x kernel/toolchain/clang-r416183b/bin/clang
+          test -f "kernel/arch/arm64/configs/$DEFCONFIG"
 
       - name: Record build inputs
         run: |
@@ -52,23 +54,23 @@ jobs:
             echo "Architecture: arm64"
             echo "Kernel repository: $KERNEL_REPO"
             echo "Kernel commit: $KERNEL_COMMIT"
-            echo "Defconfig: $DEFCONFIG"
-            echo "Compiler:"
-            clang --version
-            echo "Host:"
+            echo "Device defconfig: $DEFCONFIG"
+            kernel/toolchain/clang-r416183b/bin/clang --version
             uname -a
           } | tee build-record/BUILD-INFO.txt
 
-      - name: Configure device-specific kernel
+      - name: Configure S10+ kernel
         working-directory: kernel
         run: |
-          make O="$GITHUB_WORKSPACE/out" ARCH="$ARCH" LLVM="$LLVM" "$DEFCONFIG"
+          export PATH="$PWD/toolchain/clang-r416183b/bin:$PATH"
+          make ARCH=arm64 LLVM=1 LLVM_IAS=1 CC=clang READELF="$PWD/toolchain/clang-r416183b/bin/llvm-readelf" O="$GITHUB_WORKSPACE/out" "$DEFCONFIG" extreme.config
           cp "$GITHUB_WORKSPACE/out/.config" "$GITHUB_WORKSPACE/build-record/kernel.config"
 
       - name: Compile kernel image and device trees
         working-directory: kernel
         run: |
-          make O="$GITHUB_WORKSPACE/out" ARCH="$ARCH" LLVM="$LLVM" -j2 Image dtbs
+          export PATH="$PWD/toolchain/clang-r416183b/bin:$PATH"
+          make ARCH=arm64 LLVM=1 LLVM_IAS=1 CC=clang READELF="$PWD/toolchain/clang-r416183b/bin/llvm-readelf" O="$GITHUB_WORKSPACE/out" -j2 Image dtbs
 
       - name: Collect compile-only outputs
         if: success()
