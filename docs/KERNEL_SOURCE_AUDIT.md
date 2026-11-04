@@ -4,6 +4,10 @@ This is a source inventory, not an endorsement or a claim that any tree is ready
 
 ## Candidate A — LineageOS Exynos 9820 kernel
 
+- Current branch commit observed: `a412cfaf86b980ce35cae96a35f678c8ea551575` (`lineage-23.2`).
+- Matching device-tree example: `arch/arm64/boot/dts/samsung/exynos9820-beyond2lte_eur_open_23.dts`.
+- The inspected device-tree file declares compatible strings for the Samsung BEYOND2LTE EUR OPEN 23 board and Exynos 9820.
+
 - Repository: https://github.com/LineageOS/android_kernel_samsung_exynos9820
 - Branch found in repository metadata: `lineage-23.2`
 - Device context: LineageOS device metadata lists the S10+ as SM-G975F / beyond2lte, Exynos 9820, ARM64, with kernel 4.14.
