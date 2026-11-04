@@ -6,7 +6,8 @@ The repositories below are external references. They are not vendored into this 
 |---|---|---|
 | https://github.com/LineageOS/android_kernel_samsung_exynos9820 | `lineage-23.2` | Current community Exynos 9820 Android kernel reference |
 | https://github.com/ExtremeXT/android_kernel_samsung_exynos9820 | `2f7b0aa3e501fabeaea679e3d1bde49a1e13be46` | Device-specific Linux kernel comparison and compile-only research |
-| https://github.com/oosexgang/hakios-xnu-kernel | `87bf4851bcc9cbb24fd79997820aa3661abe4ea5` | Actual XNU/HakiOS port architecture; primary upstream for the iOS compatibility track |
+| https://github.com/oosexgang/hakios-xnu-kernel | `87bf4851bcc9cbb24fd79997820aa3661abe4ea5` | Licensed upstream HakiOS architecture and generic XNU port reference |
+| https://github.com/orhunnx/beyond2lte-ios | `9c6bae4dab4345ff537b1fc2c9de90ae01362c4b` | Read-only exact-device XNU/SpringBoard research reference; no license found, do not vendor or copy code |
 | https://github.com/ianmacd/beyond2lte | default branch to verify | Historical combined S10 kernel reference |
 | https://github.com/LineageOS/lineage_wiki/blob/main/_data/devices/beyond2lte.yml | `main` | Device model, SoC, architecture, and kernel metadata |
 
