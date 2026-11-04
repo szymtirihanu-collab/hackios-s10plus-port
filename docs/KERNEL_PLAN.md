@@ -2,25 +2,27 @@
 
 ## Objective
 
-Establish a reproducible ARM64 kernel build environment for the Samsung Galaxy S10+ Exynos variant (SM-G975F / beyond2lte). The initial output is a compile-test artifact only. A successful build is not evidence that it is bootable.
+Establish a reproducible ARM64 kernel build environment for the Samsung Galaxy S10+ Exynos variant (SM-G975F / beyond2lte). The initial output is a compile-test artifact only. A successful build is not evidence that it is bootable, and a Linux kernel build is not an iOS port.
 
 ## Source strategy
 
 Evaluate these source classes separately:
 
-1. **Samsung/OEM kernel source** matching the exact SM-G975F firmware generation. This is usually the most relevant starting point for existing vendor hardware support.
-2. **Community device trees and kernel trees** for beyond2lte. Record the exact branch, commit, target variant, Android/Linux base, and known limitations.
-3. **Upstream Linux** support for Exynos 9820 and individual peripherals. Upstream support may be incomplete compared with the vendor kernel.
+1. **LineageOS Exynos 9820 kernel** — a maintained community kernel tree whose `lineage-23.2` branch is associated with the S10+ Android 16 device support. Use it as a reference for the current device kernel baseline, not as an iOS kernel.
+2. **ExtremeXT Exynos 9820 kernel** — explicitly lists G975F / beyond2lte and documents a device-specific build target. Its build system is Android/vendor-kernel oriented and packages Android kernel output; do not treat its generated package as a HackiOS image.
+3. **OEM/Samsung kernel sources** matching the exact firmware generation.
+4. **Upstream Linux** support for Exynos 9820 and individual peripherals. Upstream support may differ substantially from the vendor kernel.
 
 Do not mix source trees, defconfigs, device trees, or proprietary modules from different device variants without documenting and validating the differences.
 
 ## Build stages
 
 ### Stage A — source audit
-- Identify the exact source repository and license.
+- Identify the exact source repository, branch, commit, and license.
 - Verify that the tree explicitly supports SM-G975F / beyond2lte.
 - Record its kernel version, toolchain expectations, defconfig, device-tree files, and required firmware/modules.
 - Identify which drivers are built in and which are external modules.
+- Confirm whether the tree targets Android vendor interfaces or a standalone Linux userspace.
 
 ### Stage B — reproducible host setup
 - Record openSUSE release, architecture, compiler versions, and required packages.
@@ -35,15 +37,11 @@ Do not mix source trees, defconfigs, device trees, or proprietary modules from d
 - Check that expected kernel and DTB artifacts were produced.
 - Do not call these artifacts flashable until their image packaging and device boot requirements are verified.
 
-### Stage D — hardware bring-up investigation
-Priority order:
-1. Display panel and display controller.
-2. Touchscreen and input devices.
-3. USB host / OTG and keyboard/mouse.
-4. Internal storage and filesystem.
-5. Charging, battery, thermal sensors, and power management.
-6. Audio, cameras, radios, suspend/resume.
-7. USB-C external display, only if the exact hardware route is supported.
+### Stage D — platform interface research
+- Compare the Linux kernel's exported interfaces with the XNU and Apple platform requirements documented in `docs/XNU_PORT_GAP.md`.
+- Do not assume Linux drivers can be linked into XNU.
+- Identify which functionality would require a clean-room implementation or a separate compatibility layer.
+- Keep all results labelled as Linux-kernel research unless an actual XNU-compatible implementation is demonstrated.
 
 ## Required build record
 
@@ -58,4 +56,4 @@ Every build should record:
 
 ## Important distinction
 
-This is a Linux kernel development track. It does not create or replace Apple's XNU kernel and does not make iOS userspace compatible with Exynos.
+The custom kernel track is for understanding and bringing up Exynos 9820 hardware. It does not create or replace Apple's XNU kernel and does not make iOS userspace compatible with Exynos.
