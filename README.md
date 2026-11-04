@@ -1,49 +1,54 @@
 # HackiOS S10+ — Exynos 9820 Research Port
 
-> **Status: research / bring-up planning. No bootable image or iOS port exists yet.**
+> **Status: research / kernel-source audit. No bootable HackiOS image or iOS port exists yet.**
 
 Target device: **Samsung Galaxy S10+ SM-G975F (beyond2lte), Exynos 9820, ARM64**.
 
-## What this project is
+## Project direction
 
-HackiOS is the working project name for investigating whether selected parts of an iOS-like environment can be recreated or studied on the S10+. The project keeps two tracks separate:
+HackiOS investigates whether selected operating-system concepts and compatible components can be recreated for the S10+. It has two separate engineering tracks:
 
-1. **Apple iOS feasibility research** — document the architectural, boot-chain, kernel, driver, and licensing barriers to running Apple's actual operating system on non-Apple hardware.
-2. **Native S10+ platform bring-up** — investigate a custom ARM64 Linux kernel and device support for the Exynos 9820. This can produce a native booting research OS, but it is **not Apple's iOS**.
+1. **Apple iOS compatibility research** — study the architectural, kernel, driver, firmware, boot-chain, and userspace requirements of Apple's actual operating system.
+2. **S10+ custom-kernel research** — audit and compile device-specific ARM64 kernel sources for the Exynos 9820 as a hardware bring-up foundation.
 
-A newly compiled Samsung/Exynos Linux kernel does not become an iOS kernel. Kernel interfaces, drivers, boot formats, trust chains, and proprietary userspace components are different.
+A custom Samsung/Linux kernel is not an iOS kernel. Apple's XNU kernel and platform stack are not made compatible with Exynos merely by compiling a new kernel. Any native Linux kernel work is a distinct platform track and must be labelled accurately.
 
-## Initial milestones
+## Current target and scope
+
+- Device: Samsung Galaxy S10+ **SM-G975F**
+- Codename: **beyond2lte**
+- SoC: **Exynos 9820**
+- Architecture: **ARM64 / AArch64**
+- Kernel baseline under investigation: Samsung Exynos 9820 vendor kernel, with current community-maintained source branches audited separately.
+- This project does **not** inherit requirements from the separate Android 16 port project.
+
+## Milestones
 
 - [x] Establish target device and scope.
-- [x] Record feasibility constraints and separate the research tracks.
-- [ ] Verify exact bootloader state, firmware/build, and partition layout on the target handset.
-- [ ] Audit available Samsung kernel source and device trees for SM-G975F.
-- [ ] Compare vendor-kernel support with upstream Linux / postmarketOS work.
-- [ ] Build a reproducible ARM64 kernel toolchain environment on openSUSE.
-- [ ] Produce a kernel configuration and compile test (not yet a flashable image).
-- [ ] Investigate display, USB-C, USB OTG, input, storage, and power-management bring-up.
-- [ ] Only after verified boot-chain research, plan a safe test-boot procedure.
-
-## Hardware priorities
-
-The first practical hardware goals are:
-1. Internal display and basic touch/input.
-2. USB OTG keyboard and mouse.
-3. USB-C display output only if the device's hardware path and available drivers support it; do not assume HDMI alt mode is available.
-4. Storage, charging, thermals, and suspend/resume.
+- [x] Record iOS/kernel feasibility constraints.
+- [x] Identify public Exynos 9820 kernel-source candidates.
+- [ ] Verify the phone's exact firmware and bootloader state.
+- [ ] Select and pin a source tree/commit for compile-only testing.
+- [ ] Reproduce a clean kernel build on openSUSE.
+- [ ] Compare the compiled kernel's interfaces and hardware support with the iOS/XNU requirements map.
+- [ ] Define a realistic, independently bootable HackiOS research environment, if feasible.
+- [ ] Only after source, image format, and recovery requirements are verified, plan device-side testing.
 
 ## Repository map
 
-- `docs/FEASIBILITY.md` — what can and cannot realistically be ported.
+- `docs/FEASIBILITY.md` — overall iOS-on-Exynos feasibility.
+- `docs/XNU_PORT_GAP.md` — platform components a kernel alone cannot provide.
 - `docs/BOOT_CHAIN.md` — Samsung boot-chain research checklist.
-- `docs/KERNEL_PLAN.md` — kernel-source and bring-up plan.
+- `docs/KERNEL_PLAN.md` — kernel development process.
+- `docs/KERNEL_SOURCE_AUDIT.md` — known public source candidates and limitations.
 - `docs/DEVICE_NOTES.md` — target-specific facts to verify.
-- `scripts/host-check.sh` — read-only host environment check for openSUSE/Linux.
+- `sources/README.md` — source selection policy.
+- `scripts/host-check.sh` — read-only host environment check.
+- `scripts/check-kernel-tree.sh` — read-only source-tree sanity check.
 
-## Safety and device integrity
+## Device integrity
 
-Do not flash an unverified image, overwrite bootloader partitions, or change partition tables as an experiment. Keep a known-good stock firmware package and a recovery path before any device-side test. This repository currently contains documentation and checks only; it does not contain a working kernel, boot image, or installer.
+No unverified image should be flashed and no bootloader or partition-table changes should be attempted as an experiment. Keep a known-good stock firmware package and a recovery path before any device-side test. A successful compile does not prove that an image is bootable.
 
 ## Naming
 
