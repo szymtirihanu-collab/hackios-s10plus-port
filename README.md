@@ -42,6 +42,7 @@ A custom Samsung/Linux kernel is not an iOS kernel. Apple's XNU kernel and platf
 - `docs/KERNEL_PLAN.md` — kernel development process.
 - `docs/KERNEL_SOURCE_AUDIT.md` — known public source candidates and limitations.
 - `docs/DEVICE_NOTES.md` — target-specific facts to verify.
+- `docs/DEVICE_TREE_AUDIT.md` — inspected S10+ device-tree evidence.
 - `sources/README.md` — source selection policy.
 - `scripts/host-check.sh` — read-only host environment check.
 - `scripts/check-kernel-tree.sh` — read-only source-tree sanity check.
