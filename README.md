@@ -13,7 +13,7 @@ The project has two distinct engineering tracks:
 1. **XNU / iOS compatibility research** — investigate the upstream HakiOS XNU port, its loader, device profiles, drivers and iOS userspace requirements, then determine what must be implemented for Exynos 9820.
 2. **S10+ Linux kernel compile research** — maintain a reproducible Linux kernel build only as a separate source/hardware reference. It is not an iOS kernel and is not a substitute for XNU.
 
-A successful Linux kernel compile does not advance the project to a bootable iOS image. See [the upstream HakiOS audit](docs/UPSTREAM_HAKIOS_AUDIT.md) for the current Exynos 9820 gap analysis.
+A successful Linux kernel compile does not advance the project to a bootable iOS image. See the [upstream HakiOS audit](docs/UPSTREAM_HAKIOS_AUDIT.md) and [Exynos XNU port plan](docs/EXYNOS_XNU_PORT_PLAN.md) for the current architecture and hardware bring-up gates.
 
 ## Current target and scope
 
@@ -31,7 +31,8 @@ A successful Linux kernel compile does not advance the project to a bootable iOS
 - [x] Identify and inspect the upstream HakiOS XNU project.
 - [x] Document the initial Exynos 9820 versus Qualcomm reference-platform gaps.
 - [x] Identify public Exynos 9820 Linux kernel-source candidates for separate hardware research.
-- [ ] Audit upstream HakiOS build, device manifest, loader and SoC interfaces in detail.
+- [x] Audit upstream HakiOS build structure, device manifest, loader flow and SoC requirements at source level.
+- [x] Pin an upstream HakiOS revision and add CI checks for its source/configuration integrity.
 - [ ] Establish whether a viable Exynos-specific UEFI/boot path can be built and tested.
 - [ ] Define an Exynos XNU device profile and identify the minimum required drivers.
 - [ ] Demonstrate XNU early boot on the target platform.
@@ -41,7 +42,9 @@ A one-month effort is a time-box for research and bring-up, not a promise that S
 
 ## Repository map
 
-- `docs/UPSTREAM_HAKIOS_AUDIT.md` — upstream project inspection and Exynos gap analysis.
+- `docs/UPSTREAM_HAKIOS_AUDIT.md` — pinned upstream project inspection and Exynos gap analysis.
+- `docs/EXYNOS_XNU_PORT_PLAN.md` — subsystem-by-subsystem XNU bring-up plan and acceptance gates.
+- `docs/BUILD_STATUS.md` — separate Linux kernel compile experiment and CI status.
 - `docs/FEASIBILITY.md` — overall iOS-on-Exynos feasibility.
 - `docs/XNU_PORT_GAP.md` — platform components a kernel alone cannot provide.
 - `docs/BOOT_CHAIN.md` — Samsung boot-chain research checklist.
