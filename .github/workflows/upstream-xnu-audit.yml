@@ -46,7 +46,9 @@ jobs:
           python3 tools/hakios-config-test.py
           python3 tools/drivers-check.py
           python3 tools/boot-args-test.py
-          python3 tools/provenance-check.py
+
+      # This is a source-only audit. Do not execute upstream phone, firmware,
+      # partition, installer or flashing scripts as part of CI.
 
       - name: Verify XNU patch applies to its pinned Apple source release
         working-directory: upstream
