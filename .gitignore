@@ -1,0 +1,13 @@
+build/
+*.img
+*.bin
+*.efi
+*.ipsw
+*.dmg
+*.zip
+*.tar
+*.tar.gz
+*.xz
+*.log
+*.dump
+*.core

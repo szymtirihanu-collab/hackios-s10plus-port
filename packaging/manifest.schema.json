@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Host artifact manifest (0100)",
+  "type": "object",
+  "required": ["project", "baseline", "artifacts"],
+  "properties": {
+    "project": {"const": "HackiOS S10+"},
+    "baseline": {"const": "0100"},
+    "created_utc": {"type": "string"},
+    "build_host": {"type": "string"},
+    "source_commit": {"type": "string"},
+    "toolchain": {"type": "object"},
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 1},
+          "kind": {"type": "string"}
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

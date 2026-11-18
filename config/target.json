@@ -1,0 +1,28 @@
+{
+  "project": "HackiOS S10+",
+  "baseline": "0100",
+  "baseline_policy": "strict",
+  "device": {
+    "manufacturer": "Samsung",
+    "model": "SM-G975F",
+    "codename": "beyond2lte",
+    "soc": "Exynos 9820",
+    "architecture": "arm64"
+  },
+  "upstream": {
+    "repository": "https://github.com/orhunnx/beyond2lte-ios",
+    "baseline_commit": "53abba664c46231ceb6b0a21c0825e154da61309",
+    "license_verified": false,
+    "source_imported": false
+  },
+  "outputs": {
+    "directory": "build/artifacts",
+    "manifest": "build/artifacts/manifest.json"
+  },
+  "device_operations": {
+    "automated_flash": false,
+    "partition_write": false,
+    "format": false,
+    "repartition": false
+  }
+}
