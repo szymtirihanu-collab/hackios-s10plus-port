@@ -1,0 +1,59 @@
+{
+  "artifact": "beyond2lte-ios-source-provenance",
+  "format_version": 1,
+  "kind": "provenance_descriptor_only",
+  "buildable": false,
+  "source_payload_included": false,
+  "target": {
+    "device": "Samsung Galaxy S10+",
+    "model": "SM-G975F",
+    "codename": "beyond2lte",
+    "soc": "Exynos 9820",
+    "architecture": "arm64"
+  },
+  "baseline": {
+    "checkpoint": "0100",
+    "repository": "https://github.com/orhunnx/beyond2lte-ios",
+    "commit": "53abba664c46231ceb6b0a21c0825e154da61309",
+    "tree": "c6846becb7d9e66567090cbc4d44113898b39970",
+    "parent": "1e77ae3afa690e2ae0bb8b2af3bdf9152406c83d",
+    "signature": "unsigned_unverified"
+  },
+  "excluded": {
+    "checkpoint": "0101",
+    "commit": "9c6bae4dab4345ff537b1fc2c9de90ae01362c4b",
+    "reason": "outside strict 0100 baseline"
+  },
+  "inventory": {
+    "blob_files": 493,
+    "total_tree_entries": 529,
+    "truncated": false,
+    "top_level": [
+      "common",
+      "docs",
+      "patches",
+      "scripts",
+      "tests",
+      "tools",
+      "uefi",
+      "userspace",
+      "xnu-overlay"
+    ]
+  },
+  "licensing": {
+    "repository_level_license_declared": false,
+    "root_license_file_present": false,
+    "redistribution_authorized": false,
+    "action": "do not copy upstream source until license or written permission is verified"
+  },
+  "verification": {
+    "metadata_checked": true,
+    "source_build_performed": false,
+    "device_test_performed": false,
+    "flashable": false
+  },
+  "safety_boundary": {
+    "physical_device_writes": false,
+    "flashing_instructions": false
+  }
+}
