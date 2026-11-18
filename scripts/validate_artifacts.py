@@ -3,10 +3,10 @@
 from pathlib import Path
 import hashlib
 import json
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = ROOT / "config" / "target.json"
 
 def validate(root: Path):
     root = root.resolve()
@@ -24,9 +24,12 @@ def validate(root: Path):
         return False, ["Manifest has no artifact entries."]
     errors = []
     for item in artifacts:
+        if not isinstance(item, dict):
+            errors.append(f"Invalid entry: {item!r}")
+            continue
         rel = item.get("path", "")
-        expected = item.get("sha256", "").lower()
-        if not rel or not isinstance(expected, str) or len(expected) != 64:
+        expected = item.get("sha256", "")
+        if not isinstance(rel, str) or not rel or not isinstance(expected, str) or not re.fullmatch(r"[a-fA-F0-9]{64}", expected):
             errors.append(f"Invalid entry: {item!r}")
             continue
         path = (root / rel).resolve()
@@ -37,7 +40,7 @@ def validate(root: Path):
             errors.append(f"Missing artifact: {rel}")
             continue
         actual = hashlib.sha256(path.read_bytes()).hexdigest()
-        if actual != expected:
+        if actual != expected.lower():
             errors.append(f"Hash mismatch: {rel}")
     return not errors, errors
 
