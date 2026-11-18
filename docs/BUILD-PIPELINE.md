@@ -1,13 +1,14 @@
 # Build pipeline scaffolding
 
-This repository is **not yet a boot-image build**. These host-side files are scaffolding for OpenCode while source provenance, upstream license, and the exact 0100 build system remain to be verified.
+This repository is **not yet a boot-image build**. These host-side files are scaffolding while source provenance, upstream license, and exact build requirements are being reviewed.
 
 ## Host-only commands
 
 - `make preflight`: verify config and basic host tools.
 - `make prepare`: create ignored workspace folders.
+- `make toolchain`: record installed host tool versions (read-only; no installs).
 - `make test`: run local config tests.
-- `make validate`: check a manifest once real artifacts exist.
+- `make validate`: check a manifest once artifacts exist.
 
 ## Artifact policy
 
@@ -17,4 +18,4 @@ Every produced artifact must be accompanied by:
 - file size and SHA-256,
 - test evidence and known limitations.
 
-Never label a placeholder or untested artifact as bootable. No device flashing, partition writes, formatting, or repartitioning are automated in this repository.
+Never label a placeholder or untested artifact as bootable. Device flashing, partition writes, formatting, or repartitioning are not automated in this repository.

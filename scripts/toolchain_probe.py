@@ -9,14 +9,9 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "build" / "logs" / "toolchain-probe.json"
 TOOLS = {
-    "python3": ["--version"],
-    "git": ["--version"],
-    "make": ["--version"],
-    "clang": ["--version"],
-    "cmake": ["--version"],
-    "ninja": ["--version"],
-    "jq": ["--version"],
-    "file": ["--version"],
+    "python3": ["--version"], "git": ["--version"], "make": ["--version"],
+    "clang": ["--version"], "cmake": ["--version"], "ninja": ["--version"],
+    "jq": ["--version"], "file": ["--version"],
 }
 
 def probe(name, args):
@@ -33,7 +28,7 @@ def probe(name, args):
 def main():
     report = {"scope": "host-only; read-only", "tools": {name: probe(name, args) for name, args in TOOLS.items()}}
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+    OUT.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     for name, result in report["tools"].items():
         print(f"{name}: {result.get('version') or ('available' if result['available'] else 'missing')}")
     print(f"Report: {OUT.relative_to(ROOT)}")
