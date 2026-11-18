@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a SHA-256 artifact manifest. Never writes to a device."""
+"""Validate a SHA-256 artifact manifest. Host-only; never writes to a device."""
 from pathlib import Path
 import hashlib
 import json
@@ -8,41 +8,51 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config" / "target.json"
 
-def main() -> int:
-    cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
-    manifest = ROOT / cfg["outputs"]["manifest"]
-    if not manifest.exists():
-        print(f"No manifest found: {manifest}")
-        print("No build artifacts are registered yet.")
-        return 1
-    data = json.loads(manifest.read_text(encoding="utf-8"))
+def validate(root: Path):
+    root = root.resolve()
+    manifest = root / "build" / "artifacts" / "manifest.json"
+    if not manifest.is_file():
+        return False, ["No manifest found; no artifacts are registered."]
+    try:
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, [f"Invalid manifest: {exc}"]
     if data.get("baseline") != "0100":
-        print("ERROR: manifest baseline is not 0100")
-        return 2
-    artifacts = data.get("artifacts", [])
-    if not artifacts:
-        print("Manifest has no artifacts.")
-        return 1
-    ok = True
+        return False, ["Manifest baseline is not 0100."]
+    artifacts = data.get("artifacts")
+    if not isinstance(artifacts, list) or not artifacts:
+        return False, ["Manifest has no artifact entries."]
+    errors = []
     for item in artifacts:
         rel = item.get("path", "")
         expected = item.get("sha256", "").lower()
-        path = (ROOT / rel).resolve()
-        if not path.is_relative_to(ROOT.resolve()):
-            print(f"ERROR: path escapes repository: {rel}")
-            ok = False
+        if not rel or not isinstance(expected, str) or len(expected) != 64:
+            errors.append(f"Invalid entry: {item!r}")
+            continue
+        path = (root / rel).resolve()
+        if not path.is_relative_to(root):
+            errors.append(f"Path escapes repository: {rel}")
             continue
         if not path.is_file():
-            print(f"MISSING: {rel}")
-            ok = False
+            errors.append(f"Missing artifact: {rel}")
             continue
         actual = hashlib.sha256(path.read_bytes()).hexdigest()
         if actual != expected:
-            print(f"HASH MISMATCH: {rel}")
-            ok = False
-        else:
-            print(f"OK: {rel} ({path.stat().st_size} bytes)")
-    return 0 if ok else 2
+            errors.append(f"Hash mismatch: {rel}")
+    return not errors, errors
+
+def main() -> int:
+    try:
+        ok, messages = validate(ROOT)
+    except (OSError, KeyError, TypeError, ValueError) as exc:
+        print(f"ERROR: {exc}")
+        return 2
+    for message in messages:
+        print(message)
+    if ok:
+        print("Artifact manifest validation passed.")
+        return 0
+    return 2
 
 if __name__ == "__main__":
     sys.exit(main())
